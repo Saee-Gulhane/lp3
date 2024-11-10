@@ -1,0 +1,843 @@
+DAA 1
+def recur(n):
+    if n <= 1:
+        return n  # Base case: return 0 for n=0, and 1 for n=1
+    else:
+        return recur(n - 1) + recur(n - 2)  # Recursive calls for Fibonacci
+
+def iterative(n):
+    a, b = 0, 1
+    if n > 0:
+        print(a)  # Print first Fibonacci number
+    if n > 1:
+        print(b)  # Print second Fibonacci number
+    for i in range(2, n):
+        c = a + b
+        print(c)
+        a, b = b, c  # Update the Fibonacci sequence
+
+if __name__ == "__main__":
+    num = int(input("Enter the nth number for the series: "))
+    if num < 0:
+        print("Enter a positive number.")
+    else:
+        print("Fibonacci sequence with recursion: ")
+        for i in range(num):
+            print(recur(i))  # Print Fibonacci sequence using recursion
+        
+        print("Fibonacci sequence with iteration: ")
+        iterative(num)  # Print Fibonacci sequence using iteration
+
+
+daa1 step count
+def fibonacci(n):
+    # Initialize the first two Fibonacci numbers
+    a, b = 0, 1
+    step_count = 0  # Variable to count steps
+    
+    # Handle the case when n is 0 or 1
+    if n == 0:
+        return 0, 0
+    elif n == 1:
+        return 1, 1
+    
+    # Iterate to compute the nth Fibonacci number
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+        step_count += 1  # Increment step count after each calculation
+        
+    return b, step_count
+
+# Get user input
+n = int(input("Enter a number to find the nth Fibonacci number: "))
+
+# Calculate the Fibonacci number and the number of steps
+fib_num, steps = fibonacci(n)
+
+# Print the result
+print(f"The {n}th Fibonacci number is: {fib_num}")
+print(f"Total steps taken to calculate the Fibonacci number: {steps}")
+
+
+DAA 2
+import heapq
+from collections import defaultdict
+
+# Define a node class to store characters and frequencies
+class Node:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
+    
+    # Overload the < operator for comparing Node objects in the priority queue
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+# Function to build the Huffman Tree
+def build_huffman_tree(frequencies):
+    # Create a priority queue with the given frequencies
+    heap = [Node(char, freq) for char, freq in frequencies.items()]
+    heapq.heapify(heap)
+    
+    # Combine nodes until only one tree remains
+    while len(heap) > 1:
+        # Remove the two nodes with the smallest frequency
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+        
+        # Combine the two nodes
+        merged = Node(None, left.freq + right.freq)
+        merged.left = left
+        merged.right = right
+        
+        # Insert the new node back into the heap
+        heapq.heappush(heap, merged)
+    
+    # The remaining node is the root of the Huffman Tree
+    return heap[0]
+
+# Function to create a dictionary of Huffman codes from the tree
+def create_codes(root, current_code="", codes={}):
+    if root is None:
+        return
+    
+    # Leaf node: save the code
+    if root.char is not None:
+        codes[root.char] = current_code
+        return
+    
+    # Traverse left and right, appending "0" for left and "1" for right
+    create_codes(root.left, current_code + "0", codes)
+    create_codes(root.right, current_code + "1", codes)
+
+# Main Huffman Encoding function
+def huffman_encoding(data):
+    # Count character frequencies
+    frequencies = defaultdict(int)
+    for char in data:
+        frequencies[char] += 1
+    
+    # Build Huffman Tree
+    root = build_huffman_tree(frequencies)
+    
+    # Create Huffman Codes
+    codes = {}
+    create_codes(root, "", codes)
+    
+    # Encode the input data
+    encoded_data = "".join(codes[char] for char in data)
+    
+    return encoded_data, codes
+
+# Take user input for data
+data = input("Enter the data to be encoded: ")
+
+# Perform Huffman Encoding
+encoded_data, codes = huffman_encoding(data)
+
+# Display the result
+print("Huffman Codes:", codes)
+print("Encoded Data:", encoded_data)
+
+
+daa2
+# Job class to represent the job
+class Job:
+    def __init__(self, id, deadline, profit):
+        self.id = id
+        self.deadline = deadline
+        self.profit = profit
+
+# Function to perform job sequencing with deadlines using Greedy method
+def job_sequencing(jobs, n):
+    # Sort jobs in decreasing order of profit
+    jobs.sort(key=lambda job: job.profit, reverse=True)
+
+    # To keep track of free time slots
+    time_slots = [-1] * n
+
+    # To store the result (job sequence)
+    job_sequence = []
+
+    # Traverse through all jobs
+    for job in jobs:
+        # Find a free slot for this job (start from the last possible slot)
+        for t in range(job.deadline - 1, -1, -1):
+            if time_slots[t] == -1:
+                # Slot is free, assign the job here
+                time_slots[t] = job.id
+                job_sequence.append(job.id)
+                break
+    
+    # Print the job sequence
+    print("Job sequence to maximize profit: ", job_sequence)
+
+# Get input from the user
+n = int(input("Enter the number of jobs: "))
+
+jobs = []
+for i in range(n):
+    job_id = input(f"Enter the job ID for job {i+1}: ")
+    deadline = int(input(f"Enter the deadline for job {i+1}: "))
+    profit = int(input(f"Enter the profit for job {i+1}: "))
+    jobs.append(Job(job_id, deadline, profit))
+
+# Perform job sequencing
+job_sequencing(jobs, n)
+
+
+DAA 3
+class Item:
+    def __init__(self,value,weight):
+        self.value=value
+        self.weight=weight
+        
+def fractional_knapsack(capacity,items):
+    items= sorted(items, key=lambda item: item.value/item.weight, reverse=True)
+    total_value=0
+    for item in items:
+        if capacity==0:
+            break
+        if item.weight<=capacity:
+            total_value+=item.value
+            capacity-=item.weight
+        else:
+            fraction=capacity/item.weight
+            total_value+=item.value * fraction
+            capacity=0
+    return total_value
+    
+num_items=int(input("enter number of items: "))
+items=[]
+
+for i in range(num_items):
+    value=float(input(f"enter value of item {i+1}: "))
+    weight=float(input(f"enter weight of item {i+1}: "))
+    items.append(Item(value,weight))
+capacity=float(input("enter apacity of knapsack: "))
+
+max_value=fractional_knapsack(capacity,items)
+print("Max value in knapsack= ", max_value)
+
+DAA 4
+def knapsack_dp(values, weights, capacity):
+    n=len(values)
+    dp=[[0 for _ in range(capacity+1)] for _ in range(n+1)]
+    for i in range(1,n+1):
+        for w in range(1, capacity+1):
+            if weights[i-1]<=w:
+                dp[i][w]=max(dp[i-1][w],values[i-1]+dp[i-1][w-weights[i-1]])
+            else:
+                dp[i][w]=dp[i-1][w]
+    return dp[n][capacity]
+    
+num_items=int(input("enter number od items: "))
+values=[]
+weights=[]
+
+for i in range(num_items):
+    value =int(input(f"enter value of item {i+1}: "))
+    weight =int(input(f"enter weight of item {i+1}: "))
+    values.append(value)
+    weights.append(weight)
+    
+capacity=int(input("enter capacity ogf bag: "))
+max_value=knapsack_dp(values,weights,capacity)
+print("max value isL ",max_value)
+
+DAA 5
+def is_safe(board, row, col, n):
+    # Check if the queen can be attacked from any other queen on the left side
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+    
+    # Check the upper diagonal on the left side
+    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+    
+    # Check the lower diagonal on the left side
+    for i, j in zip(range(row, n), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+
+    return True
+
+def solve_n_queens_util(board, col, n):
+    # Base case: If all queens are placed, return True
+    if col >= n:
+        return True
+    
+    for i in range(n):
+        if is_safe(board, i, col, n):
+            # Place the queen at position (i, col)
+            board[i][col] = 1
+            
+            # Recur to place the next queen
+            if solve_n_queens_util(board, col + 1, n):
+                return True
+            
+            # Backtrack: Remove the queen if placing it doesn't lead to a solution
+            board[i][col] = 0
+    
+    return False
+
+def solve_n_queens(n):
+    # Initialize the board with 0's
+    board = [[0 for _ in range(n)] for _ in range(n)]
+    
+    if solve_n_queens_util(board, 0, n):
+        # Print the solution
+        for row in board:
+            print(" ".join("Q" if cell == 1 else "." for cell in row))
+    else:
+        print("No solution exists")
+
+# Main execution
+if __name__ == "__main__":
+    try:
+        n = int(input("Enter the size of the board (n): "))
+        if n < 1:
+            print("Board size must be a positive integer.")
+        else:
+            solve_n_queens(n)
+    except ValueError:
+        print("Invalid input. Please enter a positive integer.")
+
+
+
+daa extra
+# Function to calculate binomial coefficient using dynamic programming
+def binomial_coefficient(n, k):
+    # Initialize a 2D array to store the binomial coefficients
+    dp = [[0 for _ in range(k+1)] for _ in range(n+1)]
+
+    # Loop through each value of n and k to compute the binomial coefficients
+    for i in range(n + 1):
+        for j in range(min(i, k) + 1):
+            # Base cases
+            if j == 0 or j == i:
+                dp[i][j] = 1
+            else:
+                dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
+    
+    return dp[n][k]
+
+# Get input from the user
+n = int(input("Enter value of n (n >= 0): "))
+k = int(input("Enter value of k (0 <= k <= n): "))
+
+# Validate input
+if k > n or n < 0 or k < 0:
+    print("Invalid input. Please make sure that 0 <= k <= n and n >= 0.")
+else:
+    # Calculate and print the binomial coefficient
+    result = binomial_coefficient(n, k)
+    print(f"The binomial coefficient C({n}, {k}) is: {result}")
+
+daa 
+import random
+import time
+
+# Deterministic Quick Sort
+def deterministic_partition(arr, low, high):
+    pivot = arr[high]
+    i = low - 1
+    for j in range(low, high):
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+def deterministic_quick_sort(arr, low, high):
+    if low < high:
+        pi = deterministic_partition(arr, low, high)
+        deterministic_quick_sort(arr, low, pi - 1)
+        deterministic_quick_sort(arr, pi + 1, high)
+
+# Randomized Quick Sort
+def randomized_partition(arr, low, high):
+    rand_pivot = random.randint(low, high)
+    arr[high], arr[rand_pivot] = arr[rand_pivot], arr[high]  # Swap with the end
+    return deterministic_partition(arr, low, high)
+
+def randomized_quick_sort(arr, low, high):
+    if low < high:
+        pi = randomized_partition(arr, low, high)
+        randomized_quick_sort(arr, low, pi - 1)
+        randomized_quick_sort(arr, pi + 1, high)
+
+# Input and Analysis
+arr = list(map(int, input("Enter numbers to sort (space-separated): ").split()))
+
+# Copy arrays for separate sorting
+arr_deterministic = arr.copy()
+arr_randomized = arr.copy()
+
+# Measure time for Deterministic Quick Sort
+start_time = time.time()
+deterministic_quick_sort(arr_deterministic, 0, len(arr_deterministic) - 1)
+deterministic_time = time.time() - start_time
+
+# Measure time for Randomized Quick Sort
+start_time = time.time()
+randomized_quick_sort(arr_randomized, 0, len(arr_randomized) - 1)
+randomized_time = time.time() - start_time
+
+# Output Results
+print("\nDeterministic Quick Sort Result:", arr_deterministic)
+print("Time taken by Deterministic Quick Sort:", deterministic_time)
+
+print("\nRandomized Quick Sort Result:", arr_randomized)
+print("Time taken by Randomized Quick Sort:", randomized_time)
+
+
+
+
+
+
+
+
+ML1
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+
+data=pd.read_csv("uber.csv")
+
+data.head(5)
+
+data.isnull().sum()
+
+data.dropna(inplace=True)
+
+data['pickup_datetime']=pd.to_datetime(data['pickup_datetime'], errors='coerce')
+data['pickup_hour']=data['pickup_datetime'].dt.hour
+data['pickup_day']=data['pickup_datetime'].dt.dayofweek
+
+data.drop(['pickup_datetime'], axis=1, inplace=True, errors='ignore') 
+
+data['fare_amount']=pd.to_numeric(data['fare_amount'],errors='coerce')
+
+data.dropna(subset=['fare_amount'],inplace=True)
+
+plt.figure(figsize=(10,6))
+sns.boxplot(x=data['fare_amount'])
+plt.title("outlier detection for fare amount")
+plt.show()
+
+Q1 = data['fare_amount'].quantile(0.25)
+Q3 = data['fare_amount'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+data = data[(data['fare_amount'] >= lower_bound) & (data['fare_amount'] <= upper_bound)]
+
+numeric_data=data.select_dtypes(include=[np.number])
+
+correlation_matrix=numeric_data.corr()
+
+plt.figure(figsize=(12,8))
+sns.heatmap(correlation_matrix, annot=True, fmt='.2f', cmap='coolwarm')
+plt.title("Correlation matrix")
+plt.show()
+
+x=data.select_dtypes(include=[np.number])
+y=data['fare_amount']
+
+x_train, x_test, y_train, y_test=train_test_split(x,y,test_size=0.2, random_state=42)
+linear_model=LinearRegression()
+linear_model.fit(x_train, y_train)
+y_pred_linear=linear_model.predict(x_test)
+y_pred_linear
+rf_model=RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(x_train, y_train)
+y_pred_rf=rf_model.predict(x_test)
+
+rmse_linear=np.sqrt(mean_squared_error(y_test, y_pred_linear))
+rmse_linear
+r2_linear=r2_score(y_test,y_pred_linear)
+r2_linear
+
+rmse_rf=np.sqrt(mean_squared_error(y_test, y_pred_rf))
+rmse_rf
+r2_rf=r2_score(y_test,y_pred_rf)
+r2_rf
+
+
+
+ML2
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+
+df=pd.read_csv("emails.csv")
+
+df.isnull().sum()
+
+df.head(5)
+
+x=df.drop(columns=['Email No.', 'Prediction'])
+y=df['Prediction']
+
+x=x.astype(float)
+
+scaler=StandardScaler()
+x_scaled=scaler.fit_transform(x)
+
+x_train,x_test, y_train, y_test=train_test_split(x_scaled, y, test_size=0.2, random_state=42)
+
+knn=KNeighborsClassifier(n_neighbors=5)
+knn.fit(x_train,y_train)
+y_pred_knn=knn.predict(x_test)
+
+print(classification_report(y_test, y_pred_knn))
+print(accuracy_score(y_test,y_pred_knn))
+print(confusion_matrix(y_test,y_pred_knn))
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
+conf_matrix_knn = confusion_matrix(y_test, y_pred_knn)
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix_knn, annot=True, fmt='d', cmap='Blues', cbar=False)
+plt.title("KNN Confusion Matrix")
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.show()
+
+svm=SVC(kernel='linear')
+svm.fit(x_train,y_train)
+y_pred_svm=svm.predict(x_test)
+
+print(classification_report(y_test,y_pred_svm))
+print(accuracy_score(y_test,y_pred_svm))
+print(confusion_matrix(y_test,y_pred_svm))
+
+conf_matrix_svm = confusion_matrix(y_test, y_pred_svm)
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix_svm, annot=True, fmt='d', cmap='Greens', cbar=False)
+plt.title("SVM Confusion Matrix")
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+plt.show()
+
+
+ML3
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Load the dataset
+data = pd.read_csv('Churn_Modelling.csv')
+
+# Drop irrelevant columns
+data_cleaned = data.drop(columns=['RowNumber', 'CustomerId', 'Surname'])
+
+# Encode categorical columns
+label_encoder_gender = LabelEncoder()
+data_cleaned['Gender'] = label_encoder_gender.fit_transform(data_cleaned['Gender'])
+
+label_encoder_geo = LabelEncoder()
+data_cleaned['Geography'] = label_encoder_geo.fit_transform(data_cleaned['Geography'])
+
+# Separate features (X) and target (y)
+X = data_cleaned.drop('Exited', axis=1)
+y = data_cleaned['Exited']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Normalize the data using StandardScaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Initialize the neural network
+model = Sequential()
+
+# Input layer and first hidden layer (using ReLU activation)
+model.add(Dense(units=10, activation='relu', input_dim=X_train_scaled.shape[1]))
+model.add(Dense(units=8, activation='relu'))
+
+# Output layer (using sigmoid activation for binary classification)
+model.add(Dense(units=1, activation='sigmoid'))
+
+# Compile the model
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Train the model
+history = model.fit(X_train_scaled, y_train, epochs=20, batch_size=32, validation_split=0.2)  # Corrected validation_split
+
+# Make predictions on the test set
+y_pred_prob = model.predict(X_test_scaled)
+y_pred = (y_pred_prob > 0.5).astype(int)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+# Generate confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+# Print results
+print("Accuracy:", accuracy)
+print("Confusion Matrix:\n", conf_matrix)
+
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+conf_matrix = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix')
+plt.show()
+
+ML4
+# Gradient Descent Algorithm to find the local minima of the function y = (x + 3)^2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the function y = (x + 3)^2 and its derivative
+def func(x):
+    return (x + 3)**2
+
+def derivative(x):
+    return 2 * (x + 3)
+
+# Gradient Descent parameters
+learning_rate = 0.1
+iterations = 100
+x_init = 2  # Starting point
+x = x_init
+
+# Store the values for plotting the descent
+x_values = [x]
+y_values = [func(x)]
+
+# Perform Gradient Descent
+for i in range(iterations):
+    x = x - learning_rate * derivative(x)  # Update x value
+    x_values.append(x)
+    y_values.append(func(x))
+
+# Plot the function and the gradient descent path
+x_plot = np.linspace(-10, 10, 1000)
+y_plot = func(x_plot)
+
+plt.plot(x_plot, y_plot, label='y = (x + 3)^2', color='blue')
+plt.scatter(x_values, y_values, color='red', label='Gradient Descent Steps')
+plt.title("Gradient Descent to Find Local Minima")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.show()
+
+# Return the final position of x after gradient descent
+x, func(x)
+
+
+ML5
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, roc_curve, auc, precision_recall_curve
+
+df=pd.read_csv("diabetes.csv")
+
+df.isnull().sum()
+
+x=df.drop(columns=['Outcome'])
+y=df['Outcome']
+
+x_train, x_test, y_train, y_test=train_test_split(x,y, test_size=0.2, random_state=42)
+
+scaler=StandardScaler()
+x_train=scaler.fit_transform(x_train)
+x_test=scaler.transform(x_test)
+
+print(f"X_train shape: {x_train.shape}")
+print(f"y_train shape: {y_train.shape}")
+
+knn=KNeighborsClassifier(n_neighbors=5)
+knn.fit(x_train, y_train)
+y_pred=knn.predict(x_test)
+
+cm=confusion_matrix(y_test,y_pred)
+cm
+
+plt.figure(figsize=(6, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
+            xticklabels=['Not Diabetic', 'Diabetic'], 
+            yticklabels=['Not Diabetic', 'Diabetic'])
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
+
+accuracy= accuracy_score(y_test,y_pred)
+error_rate=1-accuracy
+error_rate
+precision_score(y_test,y_pred)
+recall_score(y_test,y_pred)
+
+plt.figure(figsize=(10,6))
+plt.hist(y_test,bins=30, alpha=0.7, label='actual', color='blue')
+plt.hist(y_pred, bins=30, alpha=0.7, label='predicted', color='red')
+plt.legend(loc="best")
+plt.title('actual vs predicted')
+plt.xlabel("outcome")
+plt.ylabel('frequency')
+plt.show
+
+
+
+ML6
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.preprocessing import StandardScaler
+
+data = pd.read_csv('sales_data_sample.csv', encoding='ISO-8859-1')
+
+print(data.head())
+
+data_clean = data.select_dtypes(include=[np.number]).dropna()
+
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data_clean)
+
+wcss = []  # List to store the within-cluster sum of squares
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=42)
+    kmeans.fit(data_scaled)
+    wcss.append(kmeans.inertia_)
+
+plt.figure(figsize=(8, 6))
+plt.plot(range(1, 11), wcss)
+plt.title('Elbow Method for Optimal Clusters')
+plt.xlabel('Number of clusters')
+plt.ylabel('WCSS')
+plt.show()
+
+kmeans = KMeans(n_clusters=3, init='k-means++', max_iter=300, n_init=10, random_state=42)
+y_kmeans = kmeans.fit_predict(data_scaled)
+
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
+# Assuming `data_scaled` is already preprocessed and ready for clustering
+kmeans = KMeans(n_clusters=3, random_state=42)
+y_kmeans = kmeans.fit_predict(data_scaled)
+
+# Plot the clusters
+plt.figure(figsize=(8, 6))
+
+# Plot each cluster with a different color and label
+plt.scatter(data_scaled[y_kmeans == 0, 0], data_scaled[y_kmeans == 0, 1], s=50, c='red', label='Cluster 1')
+plt.scatter(data_scaled[y_kmeans == 1, 0], data_scaled[y_kmeans == 1, 1], s=50, c='blue', label='Cluster 2')
+plt.scatter(data_scaled[y_kmeans == 2, 0], data_scaled[y_kmeans == 2, 1], s=50, c='green', label='Cluster 3')
+
+# Plot the centroids
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=200, c='yellow', label='Centroids', marker='X')
+
+# Add title, labels, and legend
+plt.title('K-Means Clustering', fontsize=14)
+plt.xlabel('Feature 1', fontsize=12)
+plt.ylabel('Feature 2', fontsize=12)
+plt.legend(loc='best')
+plt.show()
+
+linked = linkage(data_scaled, method='ward')
+
+plt.figure(figsize=(10, 7))
+dendrogram(linked)
+plt.title('Hierarchical Clustering Dendrogram')
+plt.xlabel('Samples')
+plt.ylabel('Distance')
+plt.show()
+
+
+
+ml 6/5
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Load the dataset
+data = pd.read_csv("Mall_Customers.csv")
+
+# Preview the dataset
+print(data.head())
+
+# Select features for clustering (Annual Income and Spending Score)
+X = data[['Annual Income (k$)', 'Spending Score (1-100)']]
+
+# Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Calculate WCSS (Within-Cluster Sum of Squares) for different values of k
+wcss = []
+K = range(1, 11)  # Try k values from 1 to 10
+
+for k in K:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X_scaled)
+    wcss.append(kmeans.inertia_)  # Inertia is the WCSS
+
+# Plot the Elbow Method using WCSS
+plt.figure(figsize=(8, 6))
+plt.plot(K, wcss, 'bo-', markersize=8)
+plt.xlabel("Number of Clusters (k)")
+plt.ylabel("WCSS (Within-Cluster Sum of Squares)")
+plt.title("Elbow Method using WCSS")
+plt.show()
+
+# Define the optimal number of clusters from the elbow plot (e.g., k=5)
+k_optimal = 5
+
+# Apply K-Means with the optimal number of clusters
+kmeans_optimal = KMeans(n_clusters=k_optimal, random_state=42)
+data['Cluster'] = kmeans_optimal.fit_predict(X_scaled)
+
+# Plot the clusters
+plt.figure(figsize=(10, 8))
+plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=data['Cluster'], cmap='viridis', s=50, alpha=0.7)
+plt.xlabel("Annual Income (scaled)")
+plt.ylabel("Spending Score (scaled)")
+plt.title(f"Customer Segments (K-Means Clustering with k={k_optimal})")
+plt.colorbar(label="Cluster")
+plt.show()
+
+
+

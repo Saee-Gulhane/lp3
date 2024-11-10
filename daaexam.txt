@@ -1,0 +1,396 @@
+DAA 1
+def recur(n):
+    if n <= 1:
+        return n  # Base case: return 0 for n=0, and 1 for n=1
+    else:
+        return recur(n - 1) + recur(n - 2)  # Recursive calls for Fibonacci
+
+def iterative(n):
+    a, b = 0, 1
+    if n > 0:
+        print(a)  # Print first Fibonacci number
+    if n > 1:
+        print(b)  # Print second Fibonacci number
+    for i in range(2, n):
+        c = a + b
+        print(c)
+        a, b = b, c  # Update the Fibonacci sequence
+
+if __name__ == "__main__":
+    num = int(input("Enter the nth number for the series: "))
+    if num < 0:
+        print("Enter a positive number.")
+    else:
+        print("Fibonacci sequence with recursion: ")
+        for i in range(num):
+            print(recur(i))  # Print Fibonacci sequence using recursion
+        
+        print("Fibonacci sequence with iteration: ")
+        iterative(num)  # Print Fibonacci sequence using iteration
+
+
+daa1 step count
+def fibonacci(n):
+    # Initialize the first two Fibonacci numbers
+    a, b = 0, 1
+    step_count = 0  # Variable to count steps
+    
+    # Handle the case when n is 0 or 1
+    if n == 0:
+        return 0, 0
+    elif n == 1:
+        return 1, 1
+    
+    # Iterate to compute the nth Fibonacci number
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+        step_count += 1  # Increment step count after each calculation
+        
+    return b, step_count
+
+# Get user input
+n = int(input("Enter a number to find the nth Fibonacci number: "))
+
+# Calculate the Fibonacci number and the number of steps
+fib_num, steps = fibonacci(n)
+
+# Print the result
+print(f"The {n}th Fibonacci number is: {fib_num}")
+print(f"Total steps taken to calculate the Fibonacci number: {steps}")
+
+
+DAA 2
+import heapq
+from collections import defaultdict
+
+# Define a node class to store characters and frequencies
+class Node:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
+    
+    # Overload the < operator for comparing Node objects in the priority queue
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+# Function to build the Huffman Tree
+def build_huffman_tree(frequencies):
+    # Create a priority queue with the given frequencies
+    heap = [Node(char, freq) for char, freq in frequencies.items()]
+    heapq.heapify(heap)
+    
+    # Combine nodes until only one tree remains
+    while len(heap) > 1:
+        # Remove the two nodes with the smallest frequency
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+        
+        # Combine the two nodes
+        merged = Node(None, left.freq + right.freq)
+        merged.left = left
+        merged.right = right
+        
+        # Insert the new node back into the heap
+        heapq.heappush(heap, merged)
+    
+    # The remaining node is the root of the Huffman Tree
+    return heap[0]
+
+# Function to create a dictionary of Huffman codes from the tree
+def create_codes(root, current_code="", codes={}):
+    if root is None:
+        return
+    
+    # Leaf node: save the code
+    if root.char is not None:
+        codes[root.char] = current_code
+        return
+    
+    # Traverse left and right, appending "0" for left and "1" for right
+    create_codes(root.left, current_code + "0", codes)
+    create_codes(root.right, current_code + "1", codes)
+
+# Main Huffman Encoding function
+def huffman_encoding(data):
+    # Count character frequencies
+    frequencies = defaultdict(int)
+    for char in data:
+        frequencies[char] += 1
+    
+    # Build Huffman Tree
+    root = build_huffman_tree(frequencies)
+    
+    # Create Huffman Codes
+    codes = {}
+    create_codes(root, "", codes)
+    
+    # Encode the input data
+    encoded_data = "".join(codes[char] for char in data)
+    
+    return encoded_data, codes
+
+# Take user input for data
+data = input("Enter the data to be encoded: ")
+
+# Perform Huffman Encoding
+encoded_data, codes = huffman_encoding(data)
+
+# Display the result
+print("Huffman Codes:", codes)
+print("Encoded Data:", encoded_data)
+
+
+daa2
+# Job class to represent the job
+class Job:
+    def __init__(self, id, deadline, profit):
+        self.id = id
+        self.deadline = deadline
+        self.profit = profit
+
+# Function to perform job sequencing with deadlines using Greedy method
+def job_sequencing(jobs, n):
+    # Sort jobs in decreasing order of profit
+    jobs.sort(key=lambda job: job.profit, reverse=True)
+
+    # To keep track of free time slots
+    time_slots = [-1] * n
+
+    # To store the result (job sequence)
+    job_sequence = []
+
+    # Traverse through all jobs
+    for job in jobs:
+        # Find a free slot for this job (start from the last possible slot)
+        for t in range(job.deadline - 1, -1, -1):
+            if time_slots[t] == -1:
+                # Slot is free, assign the job here
+                time_slots[t] = job.id
+                job_sequence.append(job.id)
+                break
+    
+    # Print the job sequence
+    print("Job sequence to maximize profit: ", job_sequence)
+
+# Get input from the user
+n = int(input("Enter the number of jobs: "))
+
+jobs = []
+for i in range(n):
+    job_id = input(f"Enter the job ID for job {i+1}: ")
+    deadline = int(input(f"Enter the deadline for job {i+1}: "))
+    profit = int(input(f"Enter the profit for job {i+1}: "))
+    jobs.append(Job(job_id, deadline, profit))
+
+# Perform job sequencing
+job_sequencing(jobs, n)
+
+
+DAA 3
+class Item:
+    def __init__(self,value,weight):
+        self.value=value
+        self.weight=weight
+        
+def fractional_knapsack(capacity,items):
+    items= sorted(items, key=lambda item: item.value/item.weight, reverse=True)
+    total_value=0
+    for item in items:
+        if capacity==0:
+            break
+        if item.weight<=capacity:
+            total_value+=item.value
+            capacity-=item.weight
+        else:
+            fraction=capacity/item.weight
+            total_value+=item.value * fraction
+            capacity=0
+    return total_value
+    
+num_items=int(input("enter number of items: "))
+items=[]
+
+for i in range(num_items):
+    value=float(input(f"enter value of item {i+1}: "))
+    weight=float(input(f"enter weight of item {i+1}: "))
+    items.append(Item(value,weight))
+capacity=float(input("enter apacity of knapsack: "))
+
+max_value=fractional_knapsack(capacity,items)
+print("Max value in knapsack= ", max_value)
+
+DAA 4
+def knapsack_dp(values, weights, capacity):
+    n=len(values)
+    dp=[[0 for _ in range(capacity+1)] for _ in range(n+1)]
+    for i in range(1,n+1):
+        for w in range(1, capacity+1):
+            if weights[i-1]<=w:
+                dp[i][w]=max(dp[i-1][w],values[i-1]+dp[i-1][w-weights[i-1]])
+            else:
+                dp[i][w]=dp[i-1][w]
+    return dp[n][capacity]
+    
+num_items=int(input("enter number od items: "))
+values=[]
+weights=[]
+
+for i in range(num_items):
+    value =int(input(f"enter value of item {i+1}: "))
+    weight =int(input(f"enter weight of item {i+1}: "))
+    values.append(value)
+    weights.append(weight)
+    
+capacity=int(input("enter capacity ogf bag: "))
+max_value=knapsack_dp(values,weights,capacity)
+print("max value isL ",max_value)
+
+DAA 5
+def is_safe(board, row, col, n):
+    # Check if the queen can be attacked from any other queen on the left side
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+    
+    # Check the upper diagonal on the left side
+    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+    
+    # Check the lower diagonal on the left side
+    for i, j in zip(range(row, n), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+
+    return True
+
+def solve_n_queens_util(board, col, n):
+    # Base case: If all queens are placed, return True
+    if col >= n:
+        return True
+    
+    for i in range(n):
+        if is_safe(board, i, col, n):
+            # Place the queen at position (i, col)
+            board[i][col] = 1
+            
+            # Recur to place the next queen
+            if solve_n_queens_util(board, col + 1, n):
+                return True
+            
+            # Backtrack: Remove the queen if placing it doesn't lead to a solution
+            board[i][col] = 0
+    
+    return False
+
+def solve_n_queens(n):
+    # Initialize the board with 0's
+    board = [[0 for _ in range(n)] for _ in range(n)]
+    
+    if solve_n_queens_util(board, 0, n):
+        # Print the solution
+        for row in board:
+            print(" ".join("Q" if cell == 1 else "." for cell in row))
+    else:
+        print("No solution exists")
+
+# Main execution
+if __name__ == "__main__":
+    try:
+        n = int(input("Enter the size of the board (n): "))
+        if n < 1:
+            print("Board size must be a positive integer.")
+        else:
+            solve_n_queens(n)
+    except ValueError:
+        print("Invalid input. Please enter a positive integer.")
+
+
+
+daa extra
+# Function to calculate binomial coefficient using dynamic programming
+def binomial_coefficient(n, k):
+    # Initialize a 2D array to store the binomial coefficients
+    dp = [[0 for _ in range(k+1)] for _ in range(n+1)]
+
+    # Loop through each value of n and k to compute the binomial coefficients
+    for i in range(n + 1):
+        for j in range(min(i, k) + 1):
+            # Base cases
+            if j == 0 or j == i:
+                dp[i][j] = 1
+            else:
+                dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
+    
+    return dp[n][k]
+
+# Get input from the user
+n = int(input("Enter value of n (n >= 0): "))
+k = int(input("Enter value of k (0 <= k <= n): "))
+
+# Validate input
+if k > n or n < 0 or k < 0:
+    print("Invalid input. Please make sure that 0 <= k <= n and n >= 0.")
+else:
+    # Calculate and print the binomial coefficient
+    result = binomial_coefficient(n, k)
+    print(f"The binomial coefficient C({n}, {k}) is: {result}")
+
+daa 
+import random
+import time
+
+# Deterministic Quick Sort
+def deterministic_partition(arr, low, high):
+    pivot = arr[high]
+    i = low - 1
+    for j in range(low, high):
+        if arr[j] < pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+def deterministic_quick_sort(arr, low, high):
+    if low < high:
+        pi = deterministic_partition(arr, low, high)
+        deterministic_quick_sort(arr, low, pi - 1)
+        deterministic_quick_sort(arr, pi + 1, high)
+
+# Randomized Quick Sort
+def randomized_partition(arr, low, high):
+    rand_pivot = random.randint(low, high)
+    arr[high], arr[rand_pivot] = arr[rand_pivot], arr[high]  # Swap with the end
+    return deterministic_partition(arr, low, high)
+
+def randomized_quick_sort(arr, low, high):
+    if low < high:
+        pi = randomized_partition(arr, low, high)
+        randomized_quick_sort(arr, low, pi - 1)
+        randomized_quick_sort(arr, pi + 1, high)
+
+# Input and Analysis
+arr = list(map(int, input("Enter numbers to sort (space-separated): ").split()))
+
+# Copy arrays for separate sorting
+arr_deterministic = arr.copy()
+arr_randomized = arr.copy()
+
+# Measure time for Deterministic Quick Sort
+start_time = time.time()
+deterministic_quick_sort(arr_deterministic, 0, len(arr_deterministic) - 1)
+deterministic_time = time.time() - start_time
+
+# Measure time for Randomized Quick Sort
+start_time = time.time()
+randomized_quick_sort(arr_randomized, 0, len(arr_randomized) - 1)
+randomized_time = time.time() - start_time
+
+# Output Results
+print("\nDeterministic Quick Sort Result:", arr_deterministic)
+print("Time taken by Deterministic Quick Sort:", deterministic_time)
+
+print("\nRandomized Quick Sort Result:", arr_randomized)
+print("Time taken by Randomized Quick Sort:", randomized_time)
